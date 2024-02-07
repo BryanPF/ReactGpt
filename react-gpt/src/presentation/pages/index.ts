@@ -7,6 +7,6 @@ export * from './pros-cons/ProsConsPage';
 export * from './pros-cons-stream/ProsConsStreamPage'
 export * from './text-to-audio/TextToAudioPage';
 export * from './translate/TranslatePage';
-
+export * from './translate-stream/TranslateStreamPage';
 
 

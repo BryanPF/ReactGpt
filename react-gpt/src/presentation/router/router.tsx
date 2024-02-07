@@ -1,5 +1,5 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
-import { AssistantPage, AudioToTextPage, ImageGenerationPage, ImageTunningPage, OrthografyPage, ProsConsPage, ProsConsStreamPage, TranslatePage } from "../pages";
+import { AssistantPage, AudioToTextPage, ImageGenerationPage, ImageTunningPage, OrthografyPage, ProsConsPage, ProsConsStreamPage, TranslatePage, TranslateStreamPage } from "../pages";
 import TextToAudioPage from "../pages/text-to-audio/TextToAudioPage";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 
@@ -31,6 +31,13 @@ export const menuRoutes = [
       title: "Traducir",
       description: "Textos a otros idiomas",
       component: <TranslatePage />
+    },
+    {
+      to: "/translate-stream",
+      icon: "fa-solid fa-language",
+      title: "Traducir-Stream",
+      description: "Textos a otros idiomas",
+      component: <TranslateStreamPage />
     },
     {
       to: "/text-to-audio",

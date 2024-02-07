@@ -1,6 +1,6 @@
 import { useRef, useState } from "react"
-import { GptMessage, MyMessage, TextMessageBox, TypingLoaders } from "../../components";
-import { prosConsStreamGeneratorUseCase } from "../../../core/use-cases";
+import { GptMessage, MyMessage, TextMessageBoxSelect, TypingLoaders } from "../../components";
+import { translateStreamUseCase } from "../../../core/use-cases";
 
 
 interface Message {
@@ -9,7 +9,21 @@ interface Message {
 }
 
 
-export const ProsConsStreamPage = () => {
+const languages = [
+  { id: "alemán", text: "Alemán" },
+  { id: "árabe", text: "Árabe" },
+  { id: "bengalí", text: "Bengalí" },
+  { id: "francés", text: "Francés" },
+  { id: "hindi", text: "Hindi" },
+  { id: "inglés", text: "Inglés" },
+  { id: "japonés", text: "Japonés" },
+  { id: "mandarín", text: "Mandarín" },
+  { id: "portugués", text: "Portugués" },
+  { id: "ruso", text: "Ruso" },
+];
+
+
+export const TranslateStreamPage = () => {
 
   const abortController = useRef( new AbortController() );
   const isRunning = useRef(false);
@@ -18,59 +32,32 @@ export const ProsConsStreamPage = () => {
   const [messages, setMessages ] = useState<Message[]>([]);
 
 
-  const handlePost = async( text: string ) => {
+  const handlePost = async( text: string, selectedOption: string ) => {
 
     if( isRunning.current ){
       abortController.current.abort();
       abortController.current = new AbortController();
     }
 
-
     setIsLoading( true );
     isRunning.current = true;
-    setMessages( (prev) => [...prev, { text: text, isGpt: false }] );
+    const newMessage = `Traduce: "${ text }" al idioma ${ selectedOption }`;
+    setMessages( (prev) => [...prev, { text: newMessage, isGpt: false }] );
 
-    const stream = prosConsStreamGeneratorUseCase( text, abortController.current.signal );
+    const stream = translateStreamUseCase( text, selectedOption, abortController.current.signal );
     setIsLoading( false );
 
-    setMessages( (messages) => [ ...messages, { text: '', isGpt: true } ] );
+    setMessages( (messages) => [...messages, { text: '', isGpt: true }] );
 
-    for await ( const text of stream ){
+    for await( const text of stream ){
       setMessages( (messages) => {
         const newMessages = [...messages];
         newMessages[ newMessages.length - 1 ].text = text;
         return newMessages;
       });
-
     }
 
     isRunning.current = false;
-
-    // const reader = await prosConsStreamUseCase( text );
-    // setIsLoading( false );
-
-
-    // if( !reader ) return alert('No se pudo generar el reader');
-    
-    // //Generar el último mensaje
-    // const decoder = new TextDecoder();
-    // let message = '';
-    // setMessages( (messages) => [ ...messages, { text: message, isGpt: true } ] );
-
-    // while( true ){
-    //   const { value, done } = await reader.read();
-    //   if( done ) break;
-
-    //   const decondedChunk = decoder.decode( value, { stream: true } );
-    //   message += decondedChunk;
-
-      // setMessages( (messages) => {
-      //   const newMessages = [...messages];
-      //   newMessages[ newMessages.length - 1 ].text = message;
-      //   return newMessages;
-      // });
-    // }
-
 
   }
 
@@ -79,7 +66,7 @@ export const ProsConsStreamPage = () => {
     <div className="chat-container">
       <div className="chat-messages">
         <div className="grid grid-cols-12 gap-2">
-          <GptMessage text="Hola, ¿Que deseas comparar hoy?"/>
+          <GptMessage text="Hola, ¿Que quieres que traduzca hoy?"/>
           {
             messages.map( (message, index) => (
               message.isGpt
@@ -98,11 +85,13 @@ export const ProsConsStreamPage = () => {
 
         </div>
       </div>
-      <TextMessageBox 
+      <TextMessageBoxSelect
         onSendMessage={ handlePost }
         placeholder="Escribe aquí lo que deseas"
-        disableCorrections
+        options={ languages }
       />
     </div>
   )
 }
+
+
