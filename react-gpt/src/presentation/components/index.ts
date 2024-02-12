@@ -6,3 +6,4 @@ export * from './loaders/TypingLoaders';
 export * from './chat-inputs-boxes/TextMessageBox';
 export * from './chat-inputs-boxes/TextMessageBoxFile';
 export * from './chat-inputs-boxes/TextMessageBoxSelect';
+export * from './bubbles/GptMessageAudio';

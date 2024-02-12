@@ -1,6 +1,6 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import { AssistantPage, AudioToTextPage, ImageGenerationPage, ImageTunningPage, OrthografyPage, ProsConsPage, ProsConsStreamPage, TranslatePage, TranslateStreamPage } from "../pages";
-import TextToAudioPage from "../pages/text-to-audio/TextToAudioPage";
+import {TextToAudioPage} from "../pages/text-to-audio/TextToAudioPage";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 
 export const menuRoutes = [

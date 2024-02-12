@@ -5,3 +5,4 @@ export * from './prosConsStream.use-case';
 export * from './prosConsStreamGenerator.use-case';
 export * from './translate.use-case';
 export * from './translateStream.use-case';
+export * from './textToAudio.use-case';
