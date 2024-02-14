@@ -1,7 +1,9 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, FileTypeValidator, Get, HttpStatus, MaxFileSizeValidator, Param, ParseFilePipe, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { GptService } from './gpt.service';
-import { OrthographyDto, ProsConsDiscusserDto, TextToAudioDto, TranslateDto } from './DTOs';
+import { AudioToTextDto, ImageGenerationDto, OrthographyDto, ProsConsDiscusserDto, TextToAudioDto, TranslateDto } from './DTOs';
 import type { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer'
 
 @Controller('gpt')
 export class GptController {
@@ -101,4 +103,60 @@ export class GptController {
     res.sendFile( filePath );
     
   }
+
+
+
+  @Post('audio-to-text')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './generated/uploads',
+        filename: (req, file, callbak) => {
+          const fileExtention = file.originalname.split('.').pop();
+          const fileName = `${ new Date().getTime() }.${ fileExtention }`;
+          return callbak(null, fileName);
+        }
+      })
+    })
+  )
+  async audioToText(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 1000 * 1024 * 5, message: 'File is bigger than 5 mb'  }),
+          new FileTypeValidator({ fileType: 'audio/*' }),
+        ]
+      })
+    ) file: Express.Multer.File,
+    @Body() audioToTextDto: AudioToTextDto,
+  ){
+    
+    return this.gptService.audioToText(file, audioToTextDto);
+
+  }
+
+
+  @Post('image-generation')
+  async imageGeneration(
+    @Body() imageGenerationDto: ImageGenerationDto,
+  ){
+    return await this.gptService.imageGeneration( imageGenerationDto );
+  }
+
+
+  @Get('image-generation/:fileName')
+  async getImageGeneration(
+    @Res() res: Response,
+    @Param('fileName') fileName: string,
+  ){
+
+    const filePath = await this.gptService.imageGenerationGetter( fileName );
+
+    res.setHeader('Content-Type','image/png');
+    res.status( HttpStatus.OK );
+    res.sendFile( filePath );
+
+  }
+
+
 }
